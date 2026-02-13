@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雪人制作</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700;900&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #00080f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.wrapper { width: min(860px, 100vw); position: relative; }
+svg#scene { width: 100%; display: block; }
+
+/* Snow layer */
+.snow-layer { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; }
+.flake {
+  position:absolute; background:white; border-radius:50%;
+  animation: fall linear infinite;
+}
+@keyframes fall {
+  0%   { transform:translateY(-10px) translateX(0); opacity:0; }
+  8%   { opacity:1; }
+  92%  { opacity:0.8; }
+  100% { transform:translateY(540px) translateX(var(--dx)); opacity:0; }
+}
+
+/* ── Aurora ── */
+@keyframes aWave  { 0%,100%{transform:translateX(0) scaleX(1);opacity:.28} 50%{transform:translateX(16px) scaleX(1.08);opacity:.42} }
+@keyframes aWave2 { 0%,100%{transform:translateX(0) scaleX(1);opacity:.20} 50%{transform:translateX(-14px) scaleX(.93);opacity:.34} }
+#au1{animation:aWave  8s ease-in-out infinite; transform-origin:430px 55px;}
+#au2{animation:aWave2 11s ease-in-out 2s infinite; transform-origin:430px 70px;}
+#au3{animation:aWave  14s ease-in-out 5s infinite; transform-origin:430px 42px;}
+
+/* ── Stars ── */
+@keyframes twink { 0%,100%{opacity:1} 50%{opacity:.1} }
+.st { animation:twink ease-in-out infinite; }
+
+/* ── Tree sway ── */
+@keyframes sway { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(2.2deg)} }
+.tsway { animation:sway ease-in-out infinite; }
+
+/* ── Title ── */
+@keyframes tIn { from{opacity:0;transform:translateY(-18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes sIn { from{opacity:0;transform:translateY(14px)}  to{opacity:1;transform:translateY(0)} }
+#ttl  { animation:tIn 1.1s cubic-bezier(.2,0,.2,1) .2s both; }
+#sub  { animation:sIn 1.1s cubic-bezier(.2,0,.2,1) .8s both; }
+#bdg  { animation:sIn 1.1s cubic-bezier(.2,0,.2,1) 1.3s both; }
+
+/* ── Crystal spin ── */
+@keyframes cspin  { to{transform:rotate(360deg)}  }
+@keyframes cspinr { to{transform:rotate(-360deg)} }
+.cs  { animation:cspin  linear infinite; }
+.csr { animation:cspinr linear infinite; }
+
+/* ── Frame glow ── */
+@keyframes fglow { 0%,100%{stroke-opacity:.55} 50%{stroke-opacity:1} }
+#fr { animation:fglow 3.5s ease-in-out infinite; }
+
+/* ── Badge pulse ── */
+@keyframes bpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+#bdgRect { animation:bpulse 2.8s ease-in-out infinite; transform-origin:696px 432px; }
+
+/* ═══ KID A: Rolling snowball ═══ */
+/* Kid walks left-right pushing ball */
+@keyframes kidAWalk {
+  0%   { transform: translateX(0px); }
+  38%  { transform: translateX(155px); }
+  40%  { transform: translateX(155px) scaleX(-1); }
+  78%  { transform: translateX(0px) scaleX(-1); }
+  80%  { transform: translateX(0px) scaleX(1); }
+  100% { transform: translateX(0px); }
+}
+#kidA { animation: kidAWalk 5s ease-in-out infinite; transform-origin: 20px 60px; }
+
+@keyframes legAL { 0%,100%{transform:rotate(-20deg)} 50%{transform:rotate(20deg)} }
+@keyframes legAR { 0%,100%{transform:rotate(20deg)}  50%{transform:rotate(-20deg)} }
+#legAL { animation:legAL .45s ease-in-out infinite; transform-origin:0 0; }
+#legAR { animation:legAR .45s ease-in-out infinite; transform-origin:0 0; }
+
+/* Big snowball rolling */
+@keyframes ballRoll {
+  0%   { transform: translateX(70px) rotate(0deg); }
+  38%  { transform: translateX(225px) rotate(540deg); }
+  40%  { transform: translateX(225px) rotate(540deg); }
+  78%  { transform: translateX(70px) rotate(0deg); }
+  100% { transform: translateX(70px) rotate(0deg); }
+}
+#bigBall { animation: ballRoll 5s ease-in-out infinite; transform-origin: 0px 0px; }
+
+/* ═══ KID B: Stacking (lifts middle ball) ═══ */
+@keyframes liftArm {
+  0%,30%,100% { transform:rotate(0deg); }
+  50%,70%     { transform:rotate(-55deg); }
+}
+@keyframes liftArmR {
+  0%,30%,100% { transform:rotate(0deg); }
+  50%,70%     { transform:rotate(55deg); }
+}
+#kidBArmL { animation:liftArm  3s ease-in-out 0.5s infinite; transform-origin:0 0; }
+#kidBArmR { animation:liftArmR 3s ease-in-out 0.5s infinite; transform-origin:0 0; }
+
+@keyframes midBallUp {
+  0%,35%  { transform:translate(0px, 0px); }
+  55%,80% { transform:translate(0px, -52px); }
+  95%,100%{ transform:translate(0px, 0px); }
+}
+#midBall { animation:midBallUp 3s ease-in-out 0.5s infinite; }
+
+/* ═══ KID C: Decorating ═══ */
+@keyframes decorArm {
+  0%,100% { transform:rotate(-10deg); }
+  50%     { transform:rotate(25deg); }
+}
+#kidCArm { animation:decorArm .9s ease-in-out infinite; transform-origin:0 0; }
+
+/* Carrot nose pop */
+@keyframes carrotPop {
+  0%,40%,100% { transform:scaleX(0); }
+  60%,80%     { transform:scaleX(1); }
+}
+#carrot { animation:carrotPop 3.5s ease-in-out 1s infinite; transform-origin:0 50%; }
+
+/* ═══ SNOWMAN: assemble ═══ */
+/* Hat appears */
+@keyframes hatDrop {
+  0%,55%  { transform:translateY(-50px); opacity:0; }
+  70%,100%{ transform:translateY(0);     opacity:1; }
+}
+#snowmanHat { animation:hatDrop 3s ease-in-out 0.5s infinite; }
+
+/* Scarf wrap */
+@keyframes scarfIn {
+  0%,40%  { opacity:0; }
+  60%,100%{ opacity:1; }
+}
+#snowmanScarf { animation:scarfIn 3s ease-in-out 0.5s infinite; }
+
+/* Eyes blink */
+@keyframes blink { 0%,90%,100%{ry:3} 94%,96%{ry:0.5} }
+#eyeL, #eyeR { animation:blink 4s ease-in-out infinite; }
+#eyeR { animation-delay: 0.1s; }
+
+/* Snowman smile wave */
+@keyframes smileWave {
+  0%,100% { transform:scaleX(1) scaleY(1); }
+  50%     { transform:scaleX(1.1) scaleY(1.2); }
+}
+#smile { animation:smileWave 2s ease-in-out infinite; transform-origin:430px 354px; }
+
+/* Snowman arm wave */
+@keyfunction snowmanArmWave {} /* unused */
+@keyframes sArmWave {
+  0%,100% { transform:rotate(0deg); }
+  50%     { transform:rotate(-18deg); }
+}
+#snArmL { animation:sArmWave 2.2s ease-in-out infinite; transform-origin:366px 330px; }
+#snArmR { animation:sArmWave 2.2s ease-in-out .6s infinite; transform-origin:494px 330px; transform-origin:494px 330px; }
+
+/* Snowman glow pulse */
+@keyframes snGlow { 0%,100%{opacity:.18} 50%{opacity:.32} }
+#snGlowCirc { animation:snGlow 3s ease-in-out infinite; }
+
+/* ═══ SPARKLES ═══ */
+@keyframes sparkFly {
+  0%   { transform:scale(0) translate(0,0); opacity:0; }
+  30%  { opacity:1; }
+  100% { transform:scale(1.6) translate(var(--sx),var(--sy)); opacity:0; }
+}
+.spark { animation:sparkFly 1.2s ease-out infinite; transform-origin:center; }
+.spark:nth-child(2){animation-delay:.3s}
+.spark:nth-child(3){animation-delay:.6s}
+.spark:nth-child(4){animation-delay:.9s}
+
+/* ═══ FLOATING HEARTS/STARS ═══ */
+@keyframes floatUp {
+  0%   { transform:translateY(0) scale(1); opacity:.9; }
+  100% { transform:translateY(-55px) scale(0.4); opacity:0; }
+}
+.floatEl { animation:floatUp ease-out infinite; }
+
+/* ═══ SNOW PUFF under kids ═══ */
+@keyframes puffFade {
+  0%,100%{transform:scaleX(1);opacity:.45}
+  50%    {transform:scaleX(1.2);opacity:.6}
+}
+.puff { animation:puffFade 1s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="snow-layer" id="snowLayer"></div>
+  <svg id="scene" viewBox="0 0 860 520" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#010c1e"/>
+        <stop offset="55%" stop-color="#031528"/>
+        <stop offset="100%" stop-color="#072240"/>
+      </linearGradient>
+      <linearGradient id="groundG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#e2f5ff"/>
+        <stop offset="100%" stop-color="#a8d8f0"/>
+      </linearGradient>
+      <linearGradient id="hillG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#eef8ff"/>
+        <stop offset="100%" stop-color="#b8dff8"/>
+      </linearGradient>
+      <radialGradient id="snowmanGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#a8e8ff" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#a8e8ff" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="ballTopGrad" cx="35%" cy="30%" r="55%">
+        <stop offset="0%"  stop-color="#ffffff"/>
+        <stop offset="60%" stop-color="#d8efff"/>
+        <stop offset="100%" stop-color="#a8d4f0"/>
+      </radialGradient>
+      <radialGradient id="ballMidGrad" cx="35%" cy="30%" r="55%">
+        <stop offset="0%"  stop-color="#ffffff"/>
+        <stop offset="60%" stop-color="#daf0ff"/>
+        <stop offset="100%" stop-color="#aad6f2"/>
+      </radialGradient>
+      <radialGradient id="ballBotGrad" cx="35%" cy="30%" r="55%">
+        <stop offset="0%"  stop-color="#ffffff"/>
+        <stop offset="60%" stop-color="#ddf2ff"/>
+        <stop offset="100%" stop-color="#acd8f4"/>
+      </radialGradient>
+      <radialGradient id="bigBallGrad" cx="38%" cy="32%" r="55%">
+        <stop offset="0%"  stop-color="#ffffff"/>
+        <stop offset="100%" stop-color="#b8dcf8"/>
+      </radialGradient>
+      <linearGradient id="titleG" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#ffffff"/>
+        <stop offset="45%" stop-color="#d0f0ff"/>
+        <stop offset="100%" stop-color="#55c8ff"/>
+      </linearGradient>
+      <linearGradient id="accentL" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#38c0ff" stop-opacity="0"/>
+        <stop offset="30%"  stop-color="#80e8ff"/>
+        <stop offset="50%"  stop-color="#ffffff"/>
+        <stop offset="70%"  stop-color="#80e8ff"/>
+        <stop offset="100%" stop-color="#38c0ff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="aurA" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#00ffc8" stop-opacity="0"/>
+        <stop offset="35%"  stop-color="#00ffc8" stop-opacity=".55"/>
+        <stop offset="65%"  stop-color="#0088ff" stop-opacity=".45"/>
+        <stop offset="100%" stop-color="#0088ff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="aurB" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#cc00ff" stop-opacity="0"/>
+        <stop offset="40%"  stop-color="#cc00ff" stop-opacity=".35"/>
+        <stop offset="70%"  stop-color="#00ccff" stop-opacity=".30"/>
+        <stop offset="100%" stop-color="#00ccff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="aurC" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#00ff80" stop-opacity="0"/>
+        <stop offset="50%"  stop-color="#00ff80" stop-opacity=".26"/>
+        <stop offset="100%" stop-color="#00ff80" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="sGlow">
+        <feGaussianBlur stdDeviation="9" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="sg">
+        <feGaussianBlur stdDeviation="2.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <symbol id="cystal" viewBox="-12 -12 24 24">
+        <line x1="0" y1="-11" x2="0" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="-11" y1="0" x2="11" y2="0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="-8" y1="-8" x2="8" y2="8" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        <line x1="8" y1="-8" x2="-8" y2="8" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        <circle cx="0" cy="-11" r="2" fill="currentColor"/>
+        <circle cx="0" cy="11"  r="2" fill="currentColor"/>
+        <circle cx="-11" cy="0" r="2" fill="currentColor"/>
+        <circle cx="11"  cy="0" r="2" fill="currentColor"/>
+        <circle cx="0"   cy="0" r="3" fill="currentColor"/>
+      </symbol>
+      <symbol id="flakeS" viewBox="-10 -10 20 20">
+        <line x1="0" y1="-9" x2="0" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="-9" y1="0" x2="9" y2="0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="-6.4" y1="-6.4" x2="6.4" y2="6.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        <line x1="6.4" y1="-6.4" x2="-6.4" y2="6.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        <line x1="-3" y1="-6" x2="0" y2="-9" stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+        <line x1="3"  y1="-6" x2="0" y2="-9" stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+        <line x1="3"  y1="6"  x2="0" y2="9"  stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+        <line x1="-3" y1="6"  x2="0" y2="9"  stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+        <line x1="-6" y1="-3" x2="-9" y2="0" stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+        <line x1="-6" y1="3"  x2="-9" y2="0" stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+        <line x1="6"  y1="-3" x2="9"  y2="0" stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+        <line x1="6"  y1="3"  x2="9"  y2="0" stroke="currentColor" stroke-width=".8" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+
+    <!-- SKY -->
+    <rect width="860" height="520" fill="url(#skyG)"/>
+
+    <!-- AURORA -->
+    <path id="au1" d="M0,52 Q215,22 430,47 Q645,72 860,42 L860,105 Q645,130 430,105 Q215,80 0,110Z" fill="url(#aurA)"/>
+    <path id="au2" d="M0,70 Q200,42 430,66 Q660,90 860,60 L860,126 Q660,150 430,126 Q200,102 0,130Z" fill="url(#aurB)"/>
+    <path id="au3" d="M0,34 Q280,12 430,32 Q580,52 860,24 L860,84 Q580,112 430,92 Q280,72 0,98Z"   fill="url(#aurC)"/>
+
+    <!-- STARS -->
+    <circle class="st" cx="38"  cy="28"  r="1.8" fill="#fff" style="animation-duration:2.1s;animation-delay:.0s"/>
+    <circle class="st" cx="108" cy="17"  r="1.4" fill="#cef" style="animation-duration:3.0s;animation-delay:.6s"/>
+    <circle class="st" cx="178" cy="44"  r="1.8" fill="#fff" style="animation-duration:2.5s;animation-delay:1.3s"/>
+    <circle class="st" cx="250" cy="21"  r="1.3" fill="#cef" style="animation-duration:1.8s;animation-delay:.4s"/>
+    <circle class="st" cx="320" cy="52"  r="1.0" fill="#fff" style="animation-duration:2.8s;animation-delay:2.0s"/>
+    <circle class="st" cx="505" cy="22"  r="1.8" fill="#fff" style="animation-duration:2.2s;animation-delay:.3s"/>
+    <circle class="st" cx="585" cy="42"  r="1.4" fill="#cef" style="animation-duration:3.2s;animation-delay:1.0s"/>
+    <circle class="st" cx="660" cy="19"  r="1.8" fill="#fff" style="animation-duration:1.9s;animation-delay:1.7s"/>
+    <circle class="st" cx="738" cy="48"  r="1.4" fill="#cef" style="animation-duration:2.7s;animation-delay:.8s"/>
+    <circle class="st" cx="800" cy="27"  r="1.8" fill="#fff" style="animation-duration:2.4s;animation-delay:2.4s"/>
+    <circle class="st" cx="838" cy="54"  r="1.0" fill="#fff" style="animation-duration:2.0s;animation-delay:.2s"/>
+    <g filter="url(#sg)">
+      <circle cx="372" cy="25" r="2.8" fill="white"/>
+      <line x1="372" y1="17" x2="372" y2="33" stroke="white" stroke-width=".8" opacity=".5"/>
+      <line x1="364" y1="25" x2="380" y2="25" stroke="white" stroke-width=".8" opacity=".5"/>
+    </g>
+    <g filter="url(#sg)">
+      <circle cx="718" cy="34" r="2.2" fill="#b0e8ff"/>
+      <line x1="718" y1="27" x2="718" y2="41" stroke="#b0e8ff" stroke-width=".8" opacity=".5"/>
+      <line x1="711" y1="34" x2="725" y2="34" stroke="#b0e8ff" stroke-width=".8" opacity=".5"/>
+    </g>
+
+    <!-- DISTANT MOUNTAINS -->
+    <g opacity=".28">
+      <polygon points="0,215 88,130 176,215"   fill="#0a1f40"/>
+      <polygon points="65,215 170,100 275,215"  fill="#0c2448"/>
+      <polygon points="215,215 330,114 445,215" fill="#0a1f40"/>
+      <polygon points="385,215 495,124 605,215" fill="#0c2448"/>
+      <polygon points="555,215 665,107 775,215" fill="#0a1f40"/>
+      <polygon points="695,215 785,130 858,215" fill="#0c2448"/>
+      <polygon points="170,100 150,148 190,148" fill="white" opacity=".6"/>
+      <polygon points="330,114 308,162 352,162" fill="white" opacity=".6"/>
+      <polygon points="495,124 473,172 517,172" fill="white" opacity=".6"/>
+      <polygon points="665,107 643,157 687,157" fill="white" opacity=".6"/>
+    </g>
+
+    <!-- BACKGROUND SNOW HILL (gentle slope) -->
+    <path d="M 0,305 Q 200,265 430,280 Q 660,295 860,270 L860,520 L0,520Z"
+          fill="url(#hillG)" opacity=".55"/>
+
+    <!-- GROUND PLANE -->
+    <rect x="0" y="390" width="860" height="130" fill="url(#groundG)"/>
+    <path d="M0,396 Q215,391 430,398 Q645,405 860,396" fill="none" stroke="white" stroke-width="1.5" opacity=".4"/>
+    <path d="M0,406 Q215,401 430,408 Q645,415 860,406" fill="none" stroke="white" stroke-width="1"   opacity=".25"/>
+    <!-- Snow drift bumps -->
+    <ellipse cx="130" cy="396" rx="85" ry="14" fill="white" opacity=".38"/>
+    <ellipse cx="720" cy="400" rx="75" ry="13" fill="white" opacity=".32"/>
+    <ellipse cx="430" cy="405" rx="110" ry="11" fill="white" opacity=".18"/>
+    <ellipse cx="290" cy="400" rx="60" ry="10" fill="white" opacity=".22"/>
+    <ellipse cx="580" cy="398" rx="65" ry="11" fill="white" opacity=".20"/>
+
+    <!-- PINE TREES -->
+    <!-- Far left -->
+    <g class="tsway" style="animation-duration:3.5s;transform-origin:68px 350px">
+      <rect x="64" y="318" width="8" height="55" rx="2" fill="#7a5a10"/>
+      <polygon points="68,238 36,302 100,302" fill="#1d5e28"/>
+      <polygon points="68,258 38,314 98,314" fill="#277034"/>
+      <polygon points="68,278 40,330 96,330" fill="#2d783e"/>
+      <polygon points="68,238 42,272 94,272" fill="white" opacity=".52"/>
+      <polygon points="68,258 44,290 92,290" fill="white" opacity=".32"/>
+    </g>
+    <g class="tsway" style="animation-duration:4.2s;animation-delay:1.1s;transform-origin:38px 376px">
+      <rect x="34" y="344" width="8" height="48" rx="2" fill="#7a5a10"/>
+      <polygon points="38,275 8,338 68,338"  fill="#1d5e28"/>
+      <polygon points="38,295 10,350 66,350" fill="#277034"/>
+      <polygon points="38,315 12,368 64,368" fill="#2d783e"/>
+      <polygon points="38,275 14,312 62,312" fill="white" opacity=".48"/>
+    </g>
+    <!-- Far right -->
+    <g class="tsway" style="animation-duration:3.2s;animation-delay:.5s;transform-origin:795px 348px">
+      <rect x="791" y="312" width="8" height="58" rx="2" fill="#7a5a10"/>
+      <polygon points="795,228 763,292 827,292" fill="#1d5e28"/>
+      <polygon points="795,248 765,305 825,305" fill="#277034"/>
+      <polygon points="795,268 767,322 823,322" fill="#2d783e"/>
+      <polygon points="795,228 769,265 821,265" fill="white" opacity=".50"/>
+    </g>
+    <g class="tsway" style="animation-duration:3.9s;animation-delay:2.0s;transform-origin:830px 375px">
+      <rect x="826" y="340" width="8" height="52" rx="2" fill="#7a5a10"/>
+      <polygon points="830,262 800,328 860,328" fill="#1d5e28"/>
+      <polygon points="830,282 802,340 858,340" fill="#277034"/>
+      <polygon points="830,302 804,358 856,358" fill="#2d783e"/>
+      <polygon points="830,262 806,298 854,298" fill="white" opacity=".44"/>
+    </g>
+    <!-- Mid right -->
+    <g class="tsway" style="animation-duration:4.6s;animation-delay:.8s;transform-origin:758px 390px">
+      <rect x="754" y="355" width="7" height="48" rx="2" fill="#7a5a10"/>
+      <polygon points="758,282 730,345 786,345" fill="#1d5e28"/>
+      <polygon points="758,302 732,358 784,358" fill="#277034"/>
+      <polygon points="758,322 734,375 782,375" fill="#2d783e"/>
+      <polygon points="758,282 736,318 780,318" fill="white" opacity=".40"/>
+    </g>
+
+    <!-- ═══════════════════════════════════════
+         FINISHED SNOWMAN (centre)
+    ═══════════════════════════════════════ -->
+    <!-- Glow aura -->
+    <ellipse id="snGlowCirc" cx="430" cy="360" rx="95" ry="55" fill="url(#snowmanGlow)"/>
+
+    <!-- Shadow -->
+    <ellipse cx="430" cy="408" rx="68" ry="14" fill="#5a90c0" opacity=".3"/>
+
+    <!-- BOTTOM BALL -->
+    <circle cx="430" cy="385" r="48" fill="url(#ballBotGrad)" filter="url(#sg)"/>
+    <circle cx="430" cy="385" r="48" fill="none" stroke="#c0e4f8" stroke-width="1.5"/>
+    <ellipse cx="418" cy="372" rx="12" ry="8" fill="white" opacity=".3"/>
+
+    <!-- MIDDLE BALL -->
+    <g id="midBall">
+      <circle cx="430" cy="330" r="34" fill="url(#ballMidGrad)" filter="url(#sg)"/>
+      <circle cx="430" cy="330" r="34" fill="none" stroke="#c0e4f8" stroke-width="1.5"/>
+      <ellipse cx="420" cy="320" rx="9" ry="6" fill="white" opacity=".3"/>
+      <!-- Buttons -->
+      <circle cx="430" cy="322" r="3.5" fill="#1a3060"/>
+      <circle cx="430" cy="332" r="3.5" fill="#1a3060"/>
+      <circle cx="430" cy="342" r="3.5" fill="#1a3060"/>
+    </g>
+
+    <!-- SNOWMAN ARMS (branches) -->
+    <g id="snArmL">
+      <path d="M 396 330 Q 368 310 348 295" fill="none" stroke="#7a5a10" stroke-width="5" stroke-linecap="round"/>
+      <path d="M 362 312 Q 350 302 344 295" fill="none" stroke="#7a5a10" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 358 316 Q 345 308 340 300" fill="none" stroke="#7a5a10" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <g id="snArmR">
+      <path d="M 464 330 Q 492 310 512 295" fill="none" stroke="#7a5a10" stroke-width="5" stroke-linecap="round"/>
+      <path d="M 498 312 Q 510 302 516 295" fill="none" stroke="#7a5a10" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 502 316 Q 515 308 520 300" fill="none" stroke="#7a5a10" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- TOP BALL (head) -->
+    <circle cx="430" cy="286" r="26" fill="url(#ballTopGrad)" filter="url(#sg)"/>
+    <circle cx="430" cy="286" r="26" fill="none" stroke="#c0e4f8" stroke-width="1.5"/>
+    <ellipse cx="422" cy="279" rx="7" ry="5" fill="white" opacity=".32"/>
+
+    <!-- SCARF -->
+    <g id="snowmanScarf">
+      <path d="M 400 308 Q 415 318 430 316 Q 445 314 460 308 Q 448 322 430 323 Q 412 324 400 308Z"
+            fill="#e82860" opacity=".9"/>
+      <path d="M 428 316 Q 425 326 422 336" fill="none" stroke="#e82860" stroke-width="5" stroke-linecap="round"/>
+      <!-- Scarf tassels -->
+      <line x1="420" y1="336" x2="418" y2="342" stroke="#e82860" stroke-width="2" stroke-linecap="round"/>
+      <line x1="424" y1="337" x2="422" y2="343" stroke="#e82860" stroke-width="2" stroke-linecap="round"/>
+    </g>
+
+    <!-- FACE -->
+    <!-- Eyes -->
+    <ellipse id="eyeL" cx="421" cy="281" rx="3" ry="3" fill="#1a2a50"/>
+    <ellipse id="eyeR" cx="439" cy="281" rx="3" ry="3" fill="#1a2a50"/>
+    <circle cx="422" cy="280" r="1.2" fill="white"/>
+    <circle cx="440" cy="280" r="1.2" fill="white"/>
+    <!-- Eyebrows happy -->
+    <path d="M 417 275 Q 421 272 425 275" fill="none" stroke="#2a3a60" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M 435 275 Q 439 272 443 275" fill="none" stroke="#2a3a60" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Carrot nose -->
+    <g id="carrot">
+      <polygon points="430,285 430,289 448,287" fill="#e87020"/>
+      <polygon points="430,285 430,289 432,283" fill="#ff9040"/>
+    </g>
+    <!-- Smile (pebbles) -->
+    <g id="smile">
+      <circle cx="422" cy="294" r="2.2" fill="#1a2a50"/>
+      <circle cx="426" cy="298" r="2.2" fill="#1a2a50"/>
+      <circle cx="430" cy="300" r="2.2" fill="#1a2a50"/>
+      <circle cx="434" cy="298" r="2.2" fill="#1a2a50"/>
+      <circle cx="438" cy="294" r="2.2" fill="#1a2a50"/>
+    </g>
+    <!-- Rosy cheeks -->
+    <ellipse cx="413" cy="291" rx="5" ry="3" fill="#ff8888" opacity=".4"/>
+    <ellipse cx="447" cy="291" rx="5" ry="3" fill="#ff8888" opacity=".4"/>
+
+    <!-- HAT -->
+    <g id="snowmanHat">
+      <!-- Brim -->
+      <ellipse cx="430" cy="261" rx="34" ry="8" fill="#1a2848"/>
+      <ellipse cx="430" cy="261" rx="34" ry="8" fill="none" stroke="#2a3a68" stroke-width="1.5"/>
+      <!-- Hat body -->
+      <rect x="408" y="222" width="44" height="40" rx="4" fill="#1a2848"/>
+      <rect x="408" y="222" width="44" height="40" rx="4" fill="none" stroke="#2a3a68" stroke-width="1.5"/>
+      <!-- Hat band -->
+      <rect x="408" y="252" width="44" height="7" rx="2" fill="#e82020"/>
+      <!-- Snow on hat -->
+      <ellipse cx="430" cy="222" rx="22" ry="7" fill="white" opacity=".75"/>
+      <!-- Hat star -->
+      <text x="430" y="245" text-anchor="middle" font-size="14" fill="#ffd040" filter="url(#sg)">★</text>
+    </g>
+
+    <!-- Sparkles around snowman -->
+    <g filter="url(#sg)">
+      <g class="spark" style="transform-origin:375px 260px;--sx:-20px;--sy:-20px;animation-delay:0s">
+        <use href="#flakeS" x="375" y="260" width="14" height="14" color="#80e8ff"/>
+      </g>
+      <g class="spark" style="transform-origin:485px 255px;--sx:18px;--sy:-18px;animation-delay:.3s">
+        <use href="#flakeS" x="485" y="255" width="12" height="12" color="#ffd040"/>
+      </g>
+      <g class="spark" style="transform-origin:365px 305px;--sx:-22px;--sy:10px;animation-delay:.6s">
+        <use href="#flakeS" x="365" y="305" width="10" height="10" color="#ff80c0"/>
+      </g>
+      <g class="spark" style="transform-origin:495px 310px;--sx:20px;--sy:12px;animation-delay:.9s">
+        <use href="#flakeS" x="495" y="310" width="12" height="12" color="#80ff80"/>
+      </g>
+    </g>
+
+    <!-- Floating hearts above snowman -->
+    <text class="floatEl" x="398" y="252" font-size="14" fill="#ff6090" opacity=".8"
+          style="animation-duration:2.0s;animation-delay:0s">❤</text>
+    <text class="floatEl" x="452" y="248" font-size="11" fill="#ffd040" opacity=".8"
+          style="animation-duration:2.4s;animation-delay:.6s">★</text>
+    <text class="floatEl" x="418" y="244" font-size="9"  fill="#80f0ff" opacity=".7"
+          style="animation-duration:1.8s;animation-delay:1.2s">❄</text>
+
+    <!-- ═══════════════════════════════════════
+         KID A — Rolling big snowball (left)
+    ═══════════════════════════════════════ -->
+    <!-- Rolling big ball -->
+    <g id="bigBall">
+      <circle cx="0" cy="0" r="28" fill="url(#bigBallGrad)"/>
+      <circle cx="0" cy="0" r="28" fill="none" stroke="#c0e4f8" stroke-width="1.5"/>
+      <!-- Roll lines -->
+      <line x1="-28" y1="0" x2="28" y2="0"   stroke="#a8d4f0" stroke-width="1" opacity=".5"/>
+      <line x1="0" y1="-28" x2="0" y2="28"   stroke="#a8d4f0" stroke-width="1" opacity=".5"/>
+      <line x1="-20" y1="-20" x2="20" y2="20" stroke="#a8d4f0" stroke-width="1" opacity=".4"/>
+      <line x1="20" y1="-20" x2="-20" y2="20" stroke="#a8d4f0" stroke-width="1" opacity=".4"/>
+      <ellipse cx="-8" cy="-8" rx="8" ry="5" fill="white" opacity=".3"/>
+    </g>
+
+    <!-- Kid A (pushing ball) -->
+    <g id="kidA" style="transform:translateX(115px)">
+      <!-- Shadow -->
+      <ellipse class="puff" cx="20" cy="415" rx="22" ry="7" fill="#5a90c0" opacity=".25"/>
+      <!-- Legs -->
+      <g id="legAL" style="transform:translate(14px,388px) rotate(-20deg)">
+        <rect x="-4" y="0" width="8" height="24" rx="4" fill="#2244aa"/>
+        <ellipse cx="0" cy="24" rx="7" ry="4" fill="#1a1a50"/>
+      </g>
+      <g id="legAR" style="transform:translate(26px,388px) rotate(20deg)">
+        <rect x="-4" y="0" width="8" height="24" rx="4" fill="#2244aa"/>
+        <ellipse cx="0" cy="24" rx="7" ry="4" fill="#1a1a50"/>
+      </g>
+      <!-- Body -->
+      <ellipse cx="20" cy="376" rx="16" ry="16" fill="#cc2060"/>
+      <ellipse cx="20" cy="376" rx="16" ry="16" fill="none" stroke="#ee4488" stroke-width="1.5"/>
+      <!-- Pushing arms -->
+      <path d="M 6 372 Q -6 368 -14 362" fill="none" stroke="#cc2060" stroke-width="7" stroke-linecap="round"/>
+      <path d="M 6 372 Q -6 368 -14 362" fill="none" stroke="#ee4080" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="-14" cy="362" r="5" fill="#ffc890"/>
+      <path d="M 34 372 Q 46 368 54 362" fill="none" stroke="#cc2060" stroke-width="7" stroke-linecap="round"/>
+      <path d="M 34 372 Q 46 368 54 362" fill="none" stroke="#ee4080" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="54" cy="362" r="5" fill="#ffc890"/>
+      <!-- Head -->
+      <circle cx="20" cy="356" r="14" fill="#ffc890"/>
+      <!-- Beanie -->
+      <ellipse cx="20" cy="344" rx="14" ry="8" fill="#2244aa"/>
+      <rect x="7"  y="342" width="26" height="5" rx="2.5" fill="#1a3490"/>
+      <circle cx="20" cy="337" r="5" fill="white" filter="url(#sg)"/>
+      <!-- Face happy -->
+      <circle cx="15" cy="357" r="2.5" fill="#1a0800"/>
+      <circle cx="25" cy="357" r="2.5" fill="#1a0800"/>
+      <circle cx="16" cy="356" r="1"   fill="white"/>
+      <circle cx="26" cy="356" r="1"   fill="white"/>
+      <ellipse cx="11" cy="361" rx="3.5" ry="2" fill="#ff8888" opacity=".5"/>
+      <ellipse cx="29" cy="361" rx="3.5" ry="2" fill="#ff8888" opacity=".5"/>
+      <path d="M 13 363 Q 20 369 27 363" fill="none" stroke="#c04020" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 14 364 Q 20 368 26 364" fill="white"/>
+      <!-- Scarf -->
+      <path d="M 8 366 Q 5 372 2 374 Q -1 376 0 373" fill="none" stroke="#ffd020" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="0" cy="373" r="2.5" fill="#ffd020"/>
+    </g>
+
+    <!-- ═══════════════════════════════════════
+         KID B — Stacking (right of snowman)
+    ═══════════════════════════════════════ -->
+    <g style="transform:translate(530px, 0px)">
+      <!-- Shadow -->
+      <ellipse class="puff" cx="20" cy="414" rx="20" ry="6" fill="#5a90c0" opacity=".22" style="animation-delay:.3s"/>
+      <!-- Legs -->
+      <rect x="12" y="388" width="8" height="24" rx="4" fill="#338844"/>
+      <ellipse cx="16" cy="412" rx="7" ry="4" fill="#1a3020"/>
+      <rect x="24" y="388" width="8" height="24" rx="4" fill="#338844"/>
+      <ellipse cx="28" cy="412" rx="7" ry="4" fill="#1a3020"/>
+      <!-- Body -->
+      <ellipse cx="22" cy="376" rx="15" ry="15" fill="#2266bb"/>
+      <ellipse cx="22" cy="376" rx="15" ry="15" fill="none" stroke="#4488dd" stroke-width="1.5"/>
+      <!-- Lifting arms -->
+      <g id="kidBArmL" style="transform:translate(8px,368px)">
+        <path d="M 0 0 Q -12 -10 -20 -18" fill="none" stroke="#2266bb" stroke-width="7" stroke-linecap="round"/>
+        <path d="M 0 0 Q -12 -10 -20 -18" fill="none" stroke="#4488dd" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="-20" cy="-18" r="5" fill="#ffc890"/>
+      </g>
+      <g id="kidBArmR" style="transform:translate(36px,368px)">
+        <path d="M 0 0 Q 12 -10 20 -18" fill="none" stroke="#2266bb" stroke-width="7" stroke-linecap="round"/>
+        <path d="M 0 0 Q 12 -10 20 -18" fill="none" stroke="#4488dd" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="20" cy="-18" r="5" fill="#ffc890"/>
+      </g>
+      <!-- Head -->
+      <circle cx="22" cy="357" r="13" fill="#ffc890"/>
+      <!-- Hat -->
+      <ellipse cx="22" cy="347" rx="13" ry="7" fill="#cc3322"/>
+      <rect x="10" y="344" width="24" height="5" rx="2.5" fill="#aa2010"/>
+      <circle cx="22" cy="338" r="5" fill="white" filter="url(#sg)"/>
+      <!-- Face effort/excited -->
+      <circle cx="17" cy="358" r="2.5" fill="#1a0800"/>
+      <circle cx="27" cy="358" r="2.5" fill="#1a0800"/>
+      <circle cx="18" cy="357" r="1"   fill="white"/>
+      <circle cx="28" cy="357" r="1"   fill="white"/>
+      <ellipse cx="13" cy="362" rx="3" ry="2" fill="#ff8888" opacity=".5"/>
+      <ellipse cx="31" cy="362" rx="3" ry="2" fill="#ff8888" opacity=".5"/>
+      <!-- Open "O" mouth (effort) -->
+      <ellipse cx="22" cy="364" rx="4" ry="5" fill="#c04020"/>
+      <ellipse cx="22" cy="364" rx="3" ry="4" fill="#ff6040"/>
+      <!-- Scarf -->
+      <path d="M 10 368 Q 6 375 4 378 Q 2 381 5 380" fill="none" stroke="#ffd020" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="5" cy="380" r="2.5" fill="#ffd020"/>
+    </g>
+
+    <!-- ═══════════════════════════════════════
+         KID C — Decorating (left of snowman)
+    ═══════════════════════════════════════ -->
+    <g style="transform:translate(280px,0px)">
+      <!-- Shadow -->
+      <ellipse class="puff" cx="20" cy="414" rx="20" ry="6" fill="#5a90c0" opacity=".22" style="animation-delay:.6s"/>
+      <!-- Legs -->
+      <rect x="12" y="388" width="8" height="24" rx="4" fill="#cc8820"/>
+      <ellipse cx="16" cy="412" rx="7" ry="4" fill="#663300"/>
+      <rect x="24" y="388" width="8" height="24" rx="4" fill="#cc8820"/>
+      <ellipse cx="28" cy="412" rx="7" ry="4" fill="#663300"/>
+      <!-- Body -->
+      <ellipse cx="22" cy="376" rx="15" ry="15" fill="#994411"/>
+      <ellipse cx="22" cy="376" rx="15" ry="15" fill="none" stroke="#cc6622" stroke-width="1.5"/>
+      <!-- Decorating arm (reaches toward snowman) -->
+      <g id="kidCArm" style="transform:translate(36px,368px)">
+        <path d="M 0 0 Q 14 -8 24 -14" fill="none" stroke="#994411" stroke-width="7" stroke-linecap="round"/>
+        <path d="M 0 0 Q 14 -8 24 -14" fill="none" stroke="#cc6622" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="24" cy="-14" r="5" fill="#ffc890"/>
+        <!-- Holding carrot -->
+        <polygon points="24,-14 24,-10 36,-12" fill="#e87020" opacity=".9"/>
+      </g>
+      <!-- Other arm down -->
+      <path d="M 8 372 Q 0 380 -4 386" fill="none" stroke="#994411" stroke-width="7" stroke-linecap="round"/>
+      <path d="M 8 372 Q 0 380 -4 386" fill="none" stroke="#cc6622" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="-4" cy="386" r="5" fill="#ffc890"/>
+      <!-- Head -->
+      <circle cx="22" cy="357" r="13" fill="#ffc890"/>
+      <!-- Hood/hat -->
+      <ellipse cx="22" cy="347" rx="13" ry="7" fill="#994411"/>
+      <rect x="10" y="344" width="24" height="5" rx="2.5" fill="#773300"/>
+      <ellipse cx="22" cy="344" rx="10" ry="4" fill="#bb5522"/>
+      <circle cx="22" cy="338" r="4.5" fill="#ffd060" filter="url(#sg)"/>
+      <!-- Face focused -->
+      <circle cx="17" cy="358" r="2.5" fill="#1a0800"/>
+      <circle cx="27" cy="358" r="2.5" fill="#1a0800"/>
+      <circle cx="18" cy="357" r="1"   fill="white"/>
+      <circle cx="28" cy="357" r="1"   fill="white"/>
+      <ellipse cx="13" cy="362" rx="3" ry="2" fill="#ff8888" opacity=".45"/>
+      <ellipse cx="31" cy="362" rx="3" ry="2" fill="#ff8888" opacity=".45"/>
+      <path d="M 14 364 Q 22 370 30 364" fill="none" stroke="#c04020" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 15 365 Q 22 369 29 365" fill="white"/>
+      <!-- Scarf -->
+      <path d="M 10 368 Q 6 374 4 377 Q 1 381 4 379" fill="none" stroke="#2266bb" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="4" cy="379" r="2.5" fill="#2266bb"/>
+    </g>
+
+    <!-- Scene snowflakes -->
+    <g filter="url(#sg)">
+      <use href="#flakeS" x="188" y="278" width="20" height="20" color="white" opacity=".32"
+           style="animation:cspin 22s linear infinite;transform-origin:198px 288px"/>
+      <use href="#flakeS" x="648" y="272" width="18" height="18" color="#a0ecff" opacity=".36"
+           style="animation:cspinr 16s linear infinite;transform-origin:657px 281px"/>
+      <use href="#flakeS" x="110" y="355" width="15" height="15" color="white" opacity=".28"
+           style="animation:cspin 28s linear infinite;transform-origin:117px 362px"/>
+      <use href="#flakeS" x="730" y="340" width="16" height="16" color="#c0f0ff" opacity=".32"
+           style="animation:cspinr 19s linear infinite;transform-origin:738px 348px"/>
+    </g>
+
+    <!-- CORNER CRYSTALS -->
+    <g class="cs" style="animation-duration:12s;transform-origin:56px 155px" filter="url(#sg)">
+      <use href="#cystal" x="56" y="155" width="36" height="36" color="#70dcff" opacity=".62"/>
+    </g>
+    <g class="csr" style="animation-duration:9s;transform-origin:804px 163px" filter="url(#sg)">
+      <use href="#cystal" x="804" y="163" width="30" height="30" color="#90e8ff" opacity=".58"/>
+    </g>
+    <g class="cs" style="animation-duration:15s;transform-origin:78px 453px">
+      <use href="#cystal" x="78" y="453" width="24" height="24" color="#58c8ff" opacity=".44"/>
+    </g>
+    <g class="csr" style="animation-duration:11s;transform-origin:779px 448px">
+      <use href="#cystal" x="779" y="448" width="26" height="26" color="#80e0ff" opacity=".48"/>
+    </g>
+
+    <!-- ═══ TITLE ═══ -->
+    <g id="ttl">
+      <text x="430" y="140" text-anchor="middle"
+            font-family="'Noto Serif SC',serif" font-weight="900" font-size="88"
+            fill="#0099ff" opacity=".20" filter="url(#sGlow)">雪人制作</text>
+      <text x="430" y="140" text-anchor="middle"
+            font-family="'Noto Serif SC',serif" font-weight="900" font-size="88"
+            fill="url(#titleG)" filter="url(#glow)">雪人制作</text>
+      <line x1="168" y1="154" x2="692" y2="154" stroke="url(#accentL)" stroke-width="2.5"/>
+      <circle cx="168" cy="154" r="4" fill="#70d8ff" filter="url(#sg)"/>
+      <circle cx="692" cy="154" r="4" fill="#70d8ff" filter="url(#sg)"/>
+      <circle cx="430" cy="154" r="3" fill="white" opacity=".9"/>
+      <text x="430" y="174" text-anchor="middle"
+            font-family="'Noto Sans SC',sans-serif" font-weight="300" font-size="12"
+            fill="#78ccff" opacity=".85" letter-spacing="8">BUILD YOUR OWN SNOWMAN</text>
+    </g>
+
+    <!-- ═══ SUBTITLE ═══ -->
+    <g id="sub">
+      <g filter="url(#sg)">
+        <use href="#cystal" x="295" y="183" width="18" height="18" color="#55ccff" opacity=".7"/>
+        <use href="#cystal" x="547" y="183" width="18" height="18" color="#55ccff" opacity=".7"/>
+      </g>
+      <line x1="317" y1="192" x2="426" y2="192" stroke="#38b0e8" stroke-width="1" opacity=".52"/>
+      <line x1="434" y1="192" x2="543" y2="192" stroke="#38b0e8" stroke-width="1" opacity=".52"/>
+      <circle cx="430" cy="192" r="2.5" fill="#78d8ff" opacity=".85"/>
+      <text x="430" y="222" text-anchor="middle"
+            font-family="'Noto Sans SC',sans-serif" font-weight="300" font-size="19"
+            fill="#caf0ff" letter-spacing="2">亲手堆砌 · 自由创作 · 留下专属记忆</text>
+      <text x="430" y="222" text-anchor="middle"
+            font-family="'Noto Sans SC',sans-serif" font-weight="300" font-size="19"
+            fill="white" opacity=".12" filter="url(#glow)" letter-spacing="2">亲手堆砌 · 自由创作 · 留下专属记忆</text>
+    </g>
+
+    <!-- ═══ BADGE ═══ -->
+    <g id="bdg">
+      <g id="bdgRect">
+        <rect x="578" y="410" width="240" height="82" rx="10" fill="#020e22" opacity=".9"/>
+        <rect x="578" y="410" width="240" height="82" rx="10" fill="none" stroke="#00ccff" stroke-width="1.8" opacity=".75"/>
+        <line x1="578" y1="424" x2="590" y2="410" stroke="#00ccff" stroke-width="2" opacity=".6"/>
+        <line x1="802" y1="410" x2="818" y2="424" stroke="#00ccff" stroke-width="2" opacity=".6"/>
+        <line x1="578" y1="478" x2="590" y2="492" stroke="#00ccff" stroke-width="2" opacity=".6"/>
+        <line x1="802" y1="492" x2="818" y2="478" stroke="#00ccff" stroke-width="2" opacity=".6"/>
+        <text x="698" y="433" text-anchor="middle"
+              font-family="'Noto Sans SC',sans-serif" font-size="10" font-weight="400"
+              fill="#78d8ff" letter-spacing="2" opacity=".9">家庭亲子活动</text>
+        <line x1="594" y1="439" x2="802" y2="439" stroke="#0099cc" stroke-width=".8" opacity=".4"/>
+        <text x="698" y="464" text-anchor="middle"
+              font-family="'Noto Serif SC',serif" font-size="26" font-weight="700"
+              fill="#ffffff" filter="url(#sg)">专属雪人工坊</text>
+        <text x="698" y="482" text-anchor="middle"
+              font-family="'Noto Sans SC',sans-serif" font-size="10" font-weight="300"
+              fill="#98e0ff" letter-spacing="1">道具齐全 · 全年龄参与</text>
+      </g>
+    </g>
+
+    <!-- FRAME -->
+    <rect id="fr" x="6" y="6" width="848" height="508" rx="18"
+          fill="none" stroke="#00d8ff" stroke-width="2.5"/>
+    <rect x="14" y="14" width="832" height="492" rx="14"
+          fill="none" stroke="#00aadd" stroke-width="1" opacity=".18"/>
+    <g filter="url(#sg)" opacity=".85">
+      <path d="M6,38 L6,18 Q6,6 18,6 L38,6"     fill="none" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M854,38 L854,18 Q854,6 842,6 L822,6" fill="none" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M6,482 L6,502 Q6,514 18,514 L38,514" fill="none" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M854,482 L854,502 Q854,514 842,514 L822,514" fill="none" stroke="#00e5ff" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="20"  cy="20"  r="4" fill="#00e5ff" opacity=".6"/>
+      <circle cx="840" cy="20"  r="4" fill="#00e5ff" opacity=".6"/>
+      <circle cx="20"  cy="500" r="4" fill="#00e5ff" opacity=".6"/>
+      <circle cx="840" cy="500" r="4" fill="#00e5ff" opacity=".6"/>
+    </g>
+    <text x="430" y="498" text-anchor="middle"
+          font-family="'Noto Sans SC',sans-serif" font-weight="300" font-size="11"
+          fill="#3d6888" letter-spacing="3">❄ 冰雪乐园 · 创意无限 · 欢乐时光 ❄</text>
+  </svg>
+</div>
+
+<script>
+const layer = document.getElementById('snowLayer');
+for (let i = 0; i < 34; i++) {
+  const el = document.createElement('div');
+  el.className = 'flake';
+  const sz  = Math.random() * 5 + 2;
+  const dur = Math.random() * 9 + 6;
+  const del = Math.random() * -18;
+  el.style.cssText = `
+    width:${sz}px;height:${sz}px;
+    left:${Math.random()*100}%;
+    top:${Math.random()*-5}%;
+    animation-duration:${dur}s;
+    animation-delay:${del}s;
+    --dx:${(Math.random()-.5)*40}px;
+    opacity:${Math.random()*.4+.3};
+  `;
+  layer.appendChild(el);
+}
+</script>
+</body>
+</html>
