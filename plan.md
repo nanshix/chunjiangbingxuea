@@ -1,56 +1,50 @@
-# Project Blueprint: chunjiangbingxue
+# Project Blueprint: chunjiangbingxue (Iteration 2)
 
-This document serves as a comprehensive technical specification for the CHUNJIANG Ice and Snow (Spring River Ice and Snow Paradise) website.
+This document serves as a comprehensive technical specification for the CHUNJIANG Ice and Snow (Spring River Ice and Snow Paradise) website. Rebuilt from scratch in Iteration 2 for enhanced premium aesthetics.
 
 ## 1. Project Overview
 - **Name:** CHUN JIANG BING XUE LE YUAN (春江冰雪乐园)
-- **Concept:** A premium, family-friendly ice and snow theme park in Shangzhi, Harbin.
-- **Core Functionality:** Modern landing page with dynamic effects and interactive SVG animations.
-- **Language:** Chinese content, English comments.
-- **Target Audience:** Families, tourists, winter sport enthusiasts.
+- **Concept:** A ultra-premium, modern website for an ice and snow theme park in Shangzhi, Harbin.
+- **Core Functionality:** High-end landing page using glassmorphism, Noto Serif typography, and integrated SVG animations.
+- **Iteration 2 Focus:** Immersive "Borealis" theme with improved contrast and visual hierarchy.
 
 ## 2. Technical Stack
 - **Frontend:** HTML5, CSS3, JavaScript (Vanilla ES6+).
-- **Design:** Modern aesthetics with glassmorphism, gradients, and micro-animations.
+- **Design System:** 
+  - Glassmorphism (blur + transparency)
+  - Arctic gradient palette (#e0f7fa to #010b1a)
+  - Immersive dynamic snow particles
 - **Interactive Features:**
-  - Dynamic snowfall effect (referencing ice_park_demo.html).
-  - High-quality SVG animations for activities.
-  - Smooth scrolling and parallax effects.
-  - Responsive layout.
+  - Snowflake system (enhanced from ice_park_demo.html)
+  - Integrated iframe-based SVG animations in `activities/`
+  - Floating responsive navigation
 
 ## 3. Site Structure
-- `index.html`: Main landing page with all sections.
+- `index.html`: Main single-page immersive experience.
 - `activities/`:
-  - `ice-paradise-animation.html`: SVG skating animation.
-  - `snow-tube-slide.html`: SVG tubing animation.
-  - `snowman-making.html`: SVG snowman animation.
-- `assets/`: Static pictures and icons.
+  - `ice-paradise-animation.html`
+  - `snow-tube-slide.html`
+  - `snowman-making.html`
 
-## 4. Development Progress
+## 4. Development Progress (Iteration 2)
 
-### Phase 1: Foundation (COMPLETED)
-- [x] Create file structure
-- [x] Build HTML landing page
-- [x] Implement core CSS design system
-- [x] Setup responsive navigation
+### Phase 1: Re-design & Re-implementation (COMPLETED)
+- [x] Clear previous `index.html` structure
+- [x] Implement new Borealis-themed CSS system
+- [x] Integrate high-contrast typography
+- [x] Re-implement and optimize snowflake system
 
-### Phase 2: Content & Styling (COMPLETED)
-- [x] Populate project content in Chinese
-- [x] Style hero section with winter theme
-- [x] Implement footer and contact info
+### Phase 2: Feature Integration (COMPLETED)
+- [x] embed interactive SVG animations from `activities/`
+- [x] Create responsive activity cards with hover states
+- [x] Build immersive hero section with glassmorphism CTA
 
-### Phase 3: Interactive Features (COMPLETED)
-- [x] Implement dynamic snowfall effect (from ice_park_demo.html)
-- [x] Integrate 3 high-quality SVG animations for activities
-- [x] Add smooth scroll and parallax background
-
-### Phase 4: Integration & Deployment (COMPLETED)
-- [x] Review aesthetics and interactive elements
-- [x] Validate all SVG animations in `activities/`
-- [x] Push code to repository `git@github.com:nanshix/chunjiangbingxuea.git`
+### Phase 3: Deployment (COMPLETED)
+- [x] Push updated code to `git@github.com:nanshix/chunjiangbingxuea.git`
 
 ## 5. Important Notes
-- All text is in Chinese as requested.
-- Animations are lightweight SVG-based for performance.
-- Snow effect is generated dynamically via JS for variety.
+- **Aesthetics First:** Iteration 2 prioritizes a "premium luxury" feel.
+- **Chinese Content:** All user-facing text is in Chinese.
+- **Compatibility:** Optimized for modern browsers with backdrop-filter support.
+
 
